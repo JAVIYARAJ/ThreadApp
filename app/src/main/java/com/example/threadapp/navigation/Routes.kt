@@ -9,5 +9,7 @@ sealed class Routes(val route:String){
     object Notification:Routes("notification")
     object Splash:Routes("splash")
     object BottomNav:Routes("bottom_nav")
+    object Login:Routes("login")
+    object Register:Routes("register")
 
 }

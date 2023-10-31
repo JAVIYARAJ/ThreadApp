@@ -2,7 +2,9 @@ package com.example.threadapp.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,41 +12,53 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.navigation.NavHostController
 import com.example.threadapp.R
 import com.example.threadapp.navigation.Routes
+import com.example.threadapp.util.Util
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SplashScreen(controller: NavHostController) {
-    
-    val constraints= ConstraintSet{
-        val imageRef=createRefFor("image")
-        val text=createRefFor("text")
 
-        constrain(imageRef){
-            top.linkTo(parent.top)
-            bottom.linkTo(text.top)
+    val constraints = ConstraintSet {
+        val imageRef = createRefFor("image")
+        val text = createRefFor("text")
+        val topGuidLine = createGuidelineFromTop(0.1f)
+        val bottomGuidLine = createGuidelineFromBottom(0.1f)
+
+        constrain(imageRef) {
+            top.linkTo(topGuidLine)
+            bottom.linkTo(bottomGuidLine)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
         }
 
-        constrain(text){
+        constrain(text) {
             top.linkTo(imageRef.bottom)
             bottom.linkTo(parent.bottom)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
         }
+
     }
 
-    ConstraintLayout(constraints,modifier = Modifier.fillMaxSize()) {
+    ConstraintLayout(constraints, modifier = Modifier.fillMaxSize()) {
         val (image) = createRefs()
         Image(
             painter = painterResource(id = R.drawable.ic_logo_icon),
@@ -54,14 +68,31 @@ fun SplashScreen(controller: NavHostController) {
                 .width(100.dp)
                 .layoutId("image"),
         )
-        
-        Text(text = "Created by javiya raj",Modifier.layoutId("text"))
-        
+
+        Text(
+            text = "Created by javiya raj",
+            Modifier
+                .layoutId("text")
+                .fillMaxWidth(),
+            style = TextStyle(
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                fontStyle = FontStyle.Normal,
+                fontSize = 20.sp
+            )
+        )
+
     }
 
     LaunchedEffect(true) {
         delay(3000)
-        controller.navigate(Routes.BottomNav.route)
+
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            Util.goTo(controller, Routes.BottomNav.route)
+        } else {
+            Util.goTo(controller, Routes.Login.route)
+        }
     }
 
 }
