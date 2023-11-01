@@ -31,7 +31,7 @@ import com.example.threadapp.screens.SearchScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavbar(navController: NavHostController) {
-    val controller = rememberNavController()
+    val controller = rememberNavController() //local scope controller for bottom icon routing
 
     Scaffold(bottomBar = { CustomBottomNavBar(controller) }) {
         NavHost(
@@ -40,22 +40,21 @@ fun BottomNavbar(navController: NavHostController) {
             modifier = Modifier.padding(it)
         ) {
 
-            composable(Routes.Home.route){
+            composable(Routes.Home.route) {
                 HomeScreen()
             }
-            composable(Routes.Notification.route){
-                NotificationScreen()
-            }
-            composable(Routes.AddThread.route){
-                AddThreadScreen()
-            }
-            composable(Routes.SearchThread.route){
+            composable(Routes.SearchThread.route) {
                 SearchScreen()
             }
-            composable(Routes.Profile.route){
-                ProfileScreen()
+            composable(Routes.AddThread.route) {
+                AddThreadScreen()
             }
-
+            composable(Routes.Notification.route) {
+                NotificationScreen()
+            }
+            composable(Routes.Profile.route) {
+                ProfileScreen(navController)
+            }
 
         }
     }
@@ -80,11 +79,8 @@ fun CustomBottomNavBar(navController: NavHostController) {
 
             NavigationBarItem(selected = selected, onClick = {
                 navController.navigate(it.route) {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                    }
+                    popUpTo(navController.graph.findStartDestination().id)
                     launchSingleTop = true
-
                 }
             }, icon = { Icon(imageVector = it.icon, contentDescription = it.title) })
 

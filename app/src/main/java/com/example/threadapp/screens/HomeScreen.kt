@@ -4,11 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
+import com.example.threadapp.viewmodels.AuthViewModel
 
 @Composable
-fun RegisterScreen(navHostController: NavHostController) {
-    Text(text = "register screen", Modifier.clickable {
+fun HomeScreen() {
 
+    Text(text = "home", modifier = Modifier.clickable {
     })
 }

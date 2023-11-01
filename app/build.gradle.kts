@@ -70,9 +70,8 @@ dependencies {
 
 
     //navigation
-    val nav_version = "2.7.4"
 
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.navigation:navigation-compose:2.7.4")
 
     //constraint layout
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
@@ -82,4 +81,14 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:22.2.0")
     implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
     implementation("com.google.firebase:firebase-database-ktx:20.3.0")
+
+    //coil image
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    //live data
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+
+    //bcrypt
+    implementation ("at.favre.lib:bcrypt:0.9.0")
+
 }

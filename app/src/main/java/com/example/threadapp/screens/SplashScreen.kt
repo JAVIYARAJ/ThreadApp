@@ -1,10 +1,10 @@
 package com.example.threadapp.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,13 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -28,7 +26,6 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.navigation.NavHostController
 import com.example.threadapp.R
 import com.example.threadapp.navigation.Routes
-import com.example.threadapp.util.Util
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
@@ -88,10 +85,17 @@ fun SplashScreen(controller: NavHostController) {
     LaunchedEffect(true) {
         delay(3000)
 
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            Util.goTo(controller, Routes.BottomNav.route)
+        val route = if (FirebaseAuth.getInstance().currentUser != null) {
+            Routes.BottomNav.route
         } else {
-            Util.goTo(controller, Routes.Login.route)
+            Routes.Login.route
+        }
+
+        controller.navigate(route) {
+            popUpTo(controller.graph.startDestinationId) {
+                inclusive = true
+            }
+            launchSingleTop=true
         }
     }
 

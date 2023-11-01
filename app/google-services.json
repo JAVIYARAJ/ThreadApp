@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "821605533620",
+    "firebase_url": "https://threadapp-61d84-default-rtdb.firebaseio.com",
     "project_id": "threadapp-61d84",
     "storage_bucket": "threadapp-61d84.appspot.com"
   },
