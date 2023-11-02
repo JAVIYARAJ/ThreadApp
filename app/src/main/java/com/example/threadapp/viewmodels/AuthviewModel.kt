@@ -151,6 +151,7 @@ class AuthViewModel : ViewModel() {
         images.forEach { uri ->
             storageRef.putFile(uri).addOnCompleteListener {
                 storageRef.downloadUrl.addOnCompleteListener {
+                    Log.e("TAG", "createPost: $it", )
                     urlList.add(it.toString())
                 }
             }
@@ -165,6 +166,7 @@ class AuthViewModel : ViewModel() {
         description: String,
         urlList: MutableList<String>
     ) {
+        Log.e("TAG", "savePostIntoDatabase: ${urlList}", )
         val ref = firebaseDatabase.getReference("post")
         val postModel = ThreadPostModel(uid, description, urlList)
         ref.setValue(postModel).addOnCompleteListener {
