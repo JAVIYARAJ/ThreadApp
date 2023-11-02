@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.threadapp.model.ThreadPostModel
 import com.example.threadapp.model.UserModel
 import com.example.threadapp.util.Constant
 import com.example.threadapp.validation.Validation
@@ -141,6 +142,36 @@ class AuthViewModel : ViewModel() {
                 _profileData.postValue(snapshot.getValue(UserModel::class.java))
             }
         })
+    }
+
+    fun createPost(uid: String, description: String, images: List<Uri>) {
+
+        val storageRef = firebaseStorage.child("post/${UUID.randomUUID()}.jpg")
+        val urlList = mutableListOf<String>()
+        images.forEach { uri ->
+            storageRef.putFile(uri).addOnCompleteListener {
+                storageRef.downloadUrl.addOnCompleteListener {
+                    urlList.add(it.toString())
+                }
+            }
+        }
+
+        savePostIntoDatabase(uid, description, urlList)
+
+    }
+
+    private fun savePostIntoDatabase(
+        uid: String,
+        description: String,
+        urlList: MutableList<String>
+    ) {
+        val ref = firebaseDatabase.getReference("post")
+        val postModel = ThreadPostModel(uid, description, urlList)
+        ref.setValue(postModel).addOnCompleteListener {
+            if (it.isSuccessful) {
+                _errorMessage.postValue("Post Successfully")
+            }
+        }
     }
 
 }

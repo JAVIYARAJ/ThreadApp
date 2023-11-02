@@ -1,9 +1,8 @@
 package com.example.threadapp.screens
 
-import AuthBottomLabel
-import CustomButton
-import CustomTextFiled
-import android.util.Log
+import com.example.threadapp.widgets.AuthBottomLabel
+import com.example.threadapp.widgets.CustomButton
+import com.example.threadapp.widgets.CustomTextFiled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

@@ -68,7 +68,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-
     //navigation
 
     implementation("androidx.navigation:navigation-compose:2.7.4")
@@ -90,5 +89,9 @@ dependencies {
 
     //bcrypt
     implementation ("at.favre.lib:bcrypt:0.9.0")
+
+    //material 3
+    implementation("androidx.compose.material3:material3:1.2.0-alpha10")
+
 
 }

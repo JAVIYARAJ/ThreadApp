@@ -29,7 +29,7 @@ fun NavGraph(navHostController: NavHostController){
             NotificationScreen()
         }
         composable(Routes.AddThread.route){
-            AddThreadScreen()
+            AddThreadScreen(navHostController)
         }
         composable(Routes.SearchThread.route){
             SearchScreen()

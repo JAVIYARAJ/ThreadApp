@@ -10,10 +10,12 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -47,7 +49,7 @@ fun BottomNavbar(navController: NavHostController) {
                 SearchScreen()
             }
             composable(Routes.AddThread.route) {
-                AddThreadScreen()
+                AddThreadScreen(navController)
             }
             composable(Routes.Notification.route) {
                 NotificationScreen()
@@ -73,7 +75,7 @@ fun CustomBottomNavBar(navController: NavHostController) {
         BottomNavItem("Profile", Routes.Profile.route, Icons.Rounded.Person)
     )
 
-    BottomAppBar {
+    BottomAppBar(containerColor = Color.Black, contentColor = MaterialTheme.colorScheme.primary) {
         bottomNavItems.forEach {
             val selected = it.route == backStackEntry.value?.destination?.route
 

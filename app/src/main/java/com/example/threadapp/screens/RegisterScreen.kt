@@ -1,8 +1,8 @@
 package com.example.threadapp.screens
 
-import AuthBottomLabel
-import CustomButton
-import CustomTextFiled
+import com.example.threadapp.widgets.AuthBottomLabel
+import com.example.threadapp.widgets.CustomButton
+import com.example.threadapp.widgets.CustomTextFiled
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast

@@ -1,3 +1,5 @@
+package com.example.threadapp.widgets
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CustomTextFiled(textFiled:TextFieldValue,callBack:(TextFieldValue) -> Unit,label:String,modifier: Modifier,isDoneOption:Boolean=false,focusRequester: FocusRequester?=null){
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -66,8 +67,8 @@ fun AuthBottomLabel(title:String,subTitle:String,modifier: Modifier){
 }
 
 @Composable
-fun ProfileButton(title:String,layoutId:Any,onTap: () -> Unit,modifier: Modifier){
-    OutlinedButton(shape = RoundedCornerShape(5.dp),onClick = onTap, modifier = modifier.layoutId(layoutId).height(35.dp).width(150.dp)) {
+fun ProfileButton(title:String,onTap: () -> Unit,modifier: Modifier){
+    OutlinedButton(shape = RoundedCornerShape(5.dp),onClick = onTap, modifier = modifier.height(35.dp)) {
         Text(text = title, style = TextStyle(textAlign = TextAlign.Center, color = Color.Black), modifier = Modifier.fillMaxSize())
     }
 }
