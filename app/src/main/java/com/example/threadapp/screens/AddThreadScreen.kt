@@ -3,7 +3,6 @@ package com.example.threadapp.screens
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -14,11 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +42,9 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.threadapp.R
 import com.example.threadapp.navigation.Routes
 import com.example.threadapp.util.Util
+import com.example.threadapp.viewmodels.AddThreadViewModel
 import com.example.threadapp.viewmodels.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AddThreadScreen(controller: NavHostController) {
@@ -56,41 +56,59 @@ fun BottomSheetDesign(controller: NavHostController) {
 
     var description by remember { mutableStateOf("") }
 
-    var selectedImages by remember { mutableStateOf(emptyList<Uri>()) }
+    var image by remember {
+        mutableStateOf<Uri?>(null)
+    }
 
     val context = LocalContext.current
 
+    val addThreadViewModel = AddThreadViewModel()
     val authViewModel = AuthViewModel()
-    val currentUser by authViewModel.firebaseUser.observeAsState()
-    val postMessage by authViewModel.errorMessage.observeAsState("")
+    val isLoading by addThreadViewModel.showLoader.observeAsState(false)
 
-    LaunchedEffect(postMessage) {
-        if(postMessage.isNotEmpty()){
-        Util.showToast(context, postMessage)
+    val currentUser by authViewModel.firebaseUser.observeAsState()
+    val result by addThreadViewModel.result.observeAsState()
+    val profileData by authViewModel.profileData.observeAsState()
+
+    authViewModel.getProfileData(FirebaseAuth.getInstance().currentUser!!.uid)
+
+    LaunchedEffect(result) {
+        if (result?.status == "success") {
+            Util.showToast(context, result!!.message)
+            image = null
+            description = ""
+            controller.navigate(Routes.Home.route) {
+                popUpTo(Routes.AddThread.route) {
+                    inclusive = true
+                }
+            }
         }
+    }
+
+    LaunchedEffect(profileData){
+        Log.e("TAG", "BottomSheetDesign: ${profileData}", )
     }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
 
-        val (postCard, firstRow, divider, username, verifiedIcon, descriptionBox, postImage, imageAttachmentIcon) = createRefs()
+        val (postCard, firstRow, divider, username, verifiedIcon, descriptionBox, descriptionLabel, postImage, galleryIcon, cameraIcon, progressBar) = createRefs()
 
         val imageModifier = Modifier
             .fillMaxWidth()
+            .height(300.dp)
             .constrainAs(postImage) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 top.linkTo(descriptionBox.bottom)
             }
-            .padding(start = 10.dp, end = 10.dp, top = 20.dp)
+            .then(Modifier.padding(start = 10.dp, end = 10.dp, top = 20.dp))
             .clip(RoundedCornerShape(20.dp))
 
-        val imageLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetMultipleContents(),
-            onResult = {
-                if (it.isNotEmpty()) {
-                    selectedImages = it
-                }
-            })
+        val imageLauncher =
+            rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(),
+                onResult = {
+                    image = it
+                })
 
         Row(horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
@@ -113,15 +131,17 @@ fun BottomSheetDesign(controller: NavHostController) {
 
             Text(
                 modifier = Modifier.clickable {
-                    if(currentUser!=null){
-                    authViewModel.createPost(currentUser!!.uid,description,selectedImages)
+                    if (currentUser != null) {
+                        image?.let {
+                            addThreadViewModel.createPost(
+                                currentUser!!.uid,
+                                description,
+                                it
+                            )
+                        }
                     }
-                },
-                text = "Post",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Blue
+                }, text = "Post", style = TextStyle(
+                    fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Blue
                 )
             )
         }
@@ -131,22 +151,37 @@ fun BottomSheetDesign(controller: NavHostController) {
             top.linkTo(firstRow.bottom)
         })
 
-        Image(painter = painterResource(id = R.drawable.ic_people_icon),
-            contentDescription = "user_image",
-            modifier = Modifier
-                .width(50.dp)
-                .height(50.dp)
-                .padding(start = 10.dp, top = 20.dp)
-                .clip(CircleShape)
-                .constrainAs(postCard) {
-                    start.linkTo(parent.start)
-                    top.linkTo(divider.bottom)
-                }
-                .clickable {
-                    imageLauncher.launch("image/*")
-                })
+        if(profileData!=null){
+            Image(painter = rememberAsyncImagePainter(model = profileData!!.imageUrl),
+                contentDescription = "user_image",
+                modifier = Modifier
+                    .width(65.dp)
+                    .height(65.dp)
+                    .padding(start = 10.dp, top = 20.dp)
+                    .clip(CircleShape)
+                    .constrainAs(postCard) {
+                        start.linkTo(parent.start)
+                        top.linkTo(divider.bottom)
+                    }
+            )
+        }else{
+            Image(painter = painterResource(id = R.drawable.ic_people_icon),
+                contentDescription = "user_image",
+                modifier = Modifier
+                    .width(65.dp)
+                    .height(65.dp)
+                    .padding(start = 10.dp, top = 20.dp)
+                    .clip(CircleShape)
+                    .constrainAs(postCard) {
+                        start.linkTo(parent.start)
+                        top.linkTo(divider.bottom)
+                    }
+            )
+        }
+        
+       
 
-        Text(text = "javiyaraj2001", style = TextStyle(
+        Text(text = profileData?.username ?: "", style = TextStyle(
             fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium
         ), modifier = Modifier
             .padding(start = 10.dp, top = 20.dp)
@@ -160,50 +195,87 @@ fun BottomSheetDesign(controller: NavHostController) {
             modifier = Modifier
                 .height(15.dp)
                 .width(15.dp)
-                .clip(CircleShape)
-                .padding(start = 5.dp, top = 20.dp)
                 .constrainAs(verifiedIcon) {
                     start.linkTo(username.end)
-                    top.linkTo(username.top)
+                    bottom.linkTo(username.bottom)
+                })
+
+        Image(painter = painterResource(id = R.drawable.ic_gallery_icon),
+            contentDescription = "gallery_icon",
+            modifier = Modifier
+                .height(40.dp)
+                .width(40.dp)
+                .constrainAs(galleryIcon) {
+                    end.linkTo(parent.end)
+                    top.linkTo(divider.bottom)
+                }
+                .then(Modifier.padding(top = 15.dp))
+                .clip(CircleShape)
+                .clickable {
+                    imageLauncher.launch("image/*")
+                })
+
+        Image(painter = painterResource(id = R.drawable.ic_camera_icon),
+            contentDescription = "gallery_icon",
+            modifier = Modifier
+                .height(40.dp)
+                .width(40.dp)
+                .constrainAs(cameraIcon) {
+                    end.linkTo(galleryIcon.start)
+                    top.linkTo(galleryIcon.top)
+                    bottom.linkTo(galleryIcon.bottom)
+                }
+                .then(Modifier.padding(top = 15.dp))
+                .clip(CircleShape)
+                .clickable {
+                    imageLauncher.launch("image/*")
                 })
 
         BasicTextField(maxLines = 5,
             value = description,
             onValueChange = {
                 description = it
-            },
+            }, textStyle = TextStyle(fontSize = 15.sp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 35.dp, top = 10.dp, end = 20.dp)
                 .constrainAs(descriptionBox) {
                     start.linkTo(postCard.end)
                     end.linkTo(parent.end)
                     top.linkTo(username.bottom)
-                })
-
-        PickImage(modifier = imageModifier, imageList = selectedImages)
-
-    }
-
-
-}
-
-@Composable
-fun PickImage(modifier: Modifier, imageList: List<Uri>) {
-    LazyVerticalGrid(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        columns = GridCells.Fixed(3),
-        modifier = modifier
-    ) {
-        items(imageList.size) {
+                }
+                .then(Modifier.padding(top = 10.dp, start = 40.dp)))
+        if (image != null) {
             Image(
-                painter = rememberAsyncImagePainter(model = imageList[it]),
+                painter = rememberAsyncImagePainter(model = image),
                 contentDescription = "",
-                modifier = Modifier
-                    .height(100.dp)
-                    .width(100.dp),
+                modifier = imageModifier,
                 contentScale = ContentScale.Fit
             )
+
         }
+
+        if (description.isEmpty()) {
+            Text(
+                text = "Write description..",
+                style = TextStyle(fontSize = 15.sp),
+                modifier = Modifier
+                    .constrainAs(descriptionLabel) {
+                        start.linkTo(postCard.end)
+                        top.linkTo(username.bottom)
+                    }
+                    .then(Modifier.padding(start = 8.dp, top = 9.dp))
+            )
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.constrainAs(progressBar) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+            })
+        }
+
     }
+
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.threadapp.model.ThreadPostModel
 import com.example.threadapp.model.UserModel
 import com.example.threadapp.util.Constant
+import com.example.threadapp.util.Util
 import com.example.threadapp.validation.Validation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -15,20 +16,23 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.UUID
 
 class AuthViewModel : ViewModel() {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    private val firebaseDatabase = FirebaseDatabase.getInstance()
-    private val databaseRef = firebaseDatabase.getReference(Constant.FIREBASE_DATABASE_ROOT)
-
     private val firebaseStorage = Firebase.storage.reference
     private val storageRef =
         firebaseStorage.child("${Constant.FIREBASE_STORAGE_ROOT}/${UUID.randomUUID()}.jpg")
+
+    private val firebaseFireStore = FirebaseFirestore.getInstance()
 
     private val _firebaseUser = MutableLiveData<FirebaseUser>()
     val firebaseUser: LiveData<FirebaseUser> = _firebaseUser
@@ -36,8 +40,14 @@ class AuthViewModel : ViewModel() {
     private val _profileData = MutableLiveData<UserModel>()
     val profileData: LiveData<UserModel> = _profileData
 
+    private val _posts = MutableLiveData<ArrayList<ThreadPostModel>>()
+    val posts: LiveData<ArrayList<ThreadPostModel>> = _posts
+
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
+
+    private val _showLoader = MutableLiveData<Boolean>()
+    val showLoader: LiveData<Boolean> = _showLoader
 
     init {
         _firebaseUser.postValue(firebaseAuth.currentUser)
@@ -69,8 +79,10 @@ class AuthViewModel : ViewModel() {
     }
 
     fun login(email: String, password: String) {
+        _showLoader.postValue(true)
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
             _errorMessage.postValue("Login Successfully")
+            _showLoader.postValue(false)
         }.addOnFailureListener {
             _errorMessage.postValue(it.message)
         }
@@ -93,7 +105,7 @@ class AuthViewModel : ViewModel() {
                     email = email,
                     password = password,
                     bio = bio,
-                    imageUrl = it.toString(),
+                    imageUrl = it.result.toString(),
                     uid = uid
                 )
             }
@@ -116,15 +128,16 @@ class AuthViewModel : ViewModel() {
             email = email,
             password = password,
             bio = bio,
-            imageUrl = imageUrl
+            imageUrl = imageUrl,
+            createdAt = Util.convertDateToString(Date())
         )
 
-        databaseRef.child(uid!!).setValue(user).addOnSuccessListener {
+        val ref = firebaseFireStore.collection("users")
+        ref.document(uid!!).set(user).addOnSuccessListener {
             _errorMessage.postValue("Register successfully")
         }.addOnFailureListener {
             _errorMessage.postValue(it.message)
         }
-
     }
 
     fun logout() {
@@ -132,47 +145,12 @@ class AuthViewModel : ViewModel() {
         _firebaseUser.postValue(null)
     }
 
-    fun getProfileData() {
-        databaseRef.child(firebaseAuth.uid!!).addValueEventListener(object : ValueEventListener {
-            override fun onCancelled(error: DatabaseError) {
-                _errorMessage.postValue(error.message)
-            }
-
-            override fun onDataChange(snapshot: DataSnapshot) {
-                _profileData.postValue(snapshot.getValue(UserModel::class.java))
-            }
-        })
-    }
-
-    fun createPost(uid: String, description: String, images: List<Uri>) {
-
-        val storageRef = firebaseStorage.child("post/${UUID.randomUUID()}.jpg")
-        val urlList = mutableListOf<String>()
-        images.forEach { uri ->
-            storageRef.putFile(uri).addOnCompleteListener {
-                storageRef.downloadUrl.addOnCompleteListener {
-                    Log.e("TAG", "createPost: $it", )
-                    urlList.add(it.toString())
-                }
-            }
-        }
-
-        savePostIntoDatabase(uid, description, urlList)
-
-    }
-
-    private fun savePostIntoDatabase(
-        uid: String,
-        description: String,
-        urlList: MutableList<String>
-    ) {
-        Log.e("TAG", "savePostIntoDatabase: ${urlList}", )
-        val ref = firebaseDatabase.getReference("post")
-        val postModel = ThreadPostModel(uid, description, urlList)
-        ref.setValue(postModel).addOnCompleteListener {
-            if (it.isSuccessful) {
-                _errorMessage.postValue("Post Successfully")
-            }
+    fun getProfileData(id: String) {
+        val ref = firebaseFireStore.collection("users")
+        ref.document(id).get().addOnSuccessListener {
+            _profileData.postValue(it.toObject(UserModel::class.java))
+        }.addOnFailureListener {
+            _errorMessage.postValue(it.message)
         }
     }
 

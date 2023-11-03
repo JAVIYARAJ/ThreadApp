@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,20 +51,22 @@ fun LoginScreen(navHostController: NavHostController) {
     val authViewModel = AuthViewModel()
     val firebaseUser by authViewModel.firebaseUser.observeAsState()
     val message by authViewModel.errorMessage.observeAsState()
+    val isLoading by authViewModel.showLoader.observeAsState(false)
 
     val context = LocalContext.current
 
     //navigation
     LaunchedEffect(firebaseUser) {
         if (firebaseUser != null) {
-            navHostController.navigate(Routes.BottomNav.route){
-                popUpTo(navHostController.graph.findStartDestination().id){
-                    inclusive=true
+            navHostController.navigate(Routes.BottomNav.route) {
+                popUpTo(navHostController.graph.findStartDestination().id) {
+                    inclusive = true
                 }
-                launchSingleTop=true
+                launchSingleTop = true
             }
         }
     }
+
 
     LaunchedEffect(message) {
         if (message != null) {
@@ -118,13 +121,21 @@ fun LoginScreen(navHostController: NavHostController) {
             Spacer(modifier = Modifier.height(20.dp))
 
             AuthBottomLabel("Don't have an account? ", "Register", modifier = Modifier.clickable {
-                navHostController.navigate(Routes.Register.route){
-                    popUpTo(navHostController.graph.findStartDestination().id){
-                        inclusive=true
+                navHostController.navigate(Routes.Register.route) {
+                    popUpTo(navHostController.graph.findStartDestination().id) {
+                        inclusive = true
                     }
-                    launchSingleTop=true
+                    launchSingleTop = true
                 }
             })
+
+            /*
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(20.dp))
+                CircularProgressIndicator()
+            }
+
+             */
 
         }
     }

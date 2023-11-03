@@ -1,5 +1,6 @@
 package com.example.threadapp.model
 
-import android.net.Uri
+import java.util.Date
 
-data class ThreadPostModel(val uid: String, val description: String, val imageList: List<String>)
+data class ThreadPostModel(val uid: String,val description: String, val image: String,val createdAt:String)
+

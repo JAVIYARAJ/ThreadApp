@@ -33,11 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.threadapp.R
 import com.example.threadapp.model.UserModel
 import com.example.threadapp.navigation.Routes
 import com.example.threadapp.viewmodels.AuthViewModel
-
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -56,7 +57,7 @@ fun ProfileScreen(controller: NavHostController) {
         }
     }
 
-    authViewModel.getProfileData()
+    authViewModel.getProfileData(FirebaseAuth.getInstance().currentUser!!.uid)
 
     LaunchedEffect(profileData) {
         userProfileData.value = profileData
@@ -65,7 +66,7 @@ fun ProfileScreen(controller: NavHostController) {
     ConstraintLayout(
         modifier = Modifier.fillMaxSize(),
     ) {
-        val (profileCard, bio,profileButtons) = createRefs()
+        val (profileCard, bio, profileButtons) = createRefs()
 
         Box(
             modifier = Modifier
@@ -131,19 +132,39 @@ fun ProfileScreen(controller: NavHostController) {
                     )
                 }
 
-                Image(
-                    painter = painterResource(id = R.drawable.ic_people_icon),
-                    contentDescription = "user_image",
-                    modifier = Modifier
-                        .constrainAs(userImage) {
-                            top.linkTo(parent.top)
-                            end.linkTo(parent.end)
-                            bottom.linkTo(parent.bottom)
-                        }
-                        .height(80.dp)
-                        .width(80.dp)
-                        .clip(CircleShape)
-                )
+                if (userProfileData.value?.imageUrl != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = userProfileData.value!!.imageUrl
+                        ),
+                        contentDescription = "user_image",
+                        modifier = Modifier
+                            .constrainAs(userImage) {
+                                top.linkTo(parent.top)
+                                end.linkTo(parent.end)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .height(80.dp)
+                            .width(80.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_people_icon),
+                        contentDescription = "user_image",
+                        modifier = Modifier
+                            .constrainAs(userImage) {
+                                top.linkTo(parent.top)
+                                end.linkTo(parent.end)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .height(80.dp)
+                            .width(80.dp)
+                            .clip(CircleShape)
+                    )
+                }
+
+
 
                 Image(
                     painter = painterResource(id = R.drawable.ic_verified_icon),
@@ -176,17 +197,27 @@ fun ProfileScreen(controller: NavHostController) {
                 .width(200.dp)
         )
 
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.constrainAs(profileButtons){
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-            top.linkTo(bio.bottom)
-        }.padding(start = 15.dp, top = 20.dp, end = 10.dp)) {
-            ProfileButton(title = "Edit Profile", onTap = { }, modifier = Modifier
-               .weight(0.5f,false).padding(end = 10.dp) )
-            ProfileButton(title = "Share Profile", onTap = { }, modifier = Modifier
-               .weight(0.5f,false).padding(start = 10.dp) )
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .constrainAs(profileButtons) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(bio.bottom)
+                }
+                .padding(start = 15.dp, top = 20.dp, end = 10.dp)
+        ) {
+            ProfileButton(
+                title = "Edit Profile", onTap = { }, modifier = Modifier
+                    .weight(0.5f, false)
+                    .padding(end = 10.dp)
+            )
+            ProfileButton(
+                title = "Share Profile", onTap = { }, modifier = Modifier
+                    .weight(0.5f, false)
+                    .padding(start = 10.dp)
+            )
         }
-
 
 
     }

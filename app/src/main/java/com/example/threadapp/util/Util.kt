@@ -8,6 +8,8 @@ import androidx.navigation.NavHostController
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.threadapp.navigation.Routes
 import java.security.SecureRandom
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.Singleton
 
 class Util {
@@ -32,9 +34,15 @@ class Util {
             return BCrypt.withDefaults().hashToString(12, password.toCharArray())
         }
 
-        fun verifyPassword(password: String,hashedPassword:String):Boolean{
+        fun verifyPassword(password: String, hashedPassword: String): Boolean {
             return BCrypt.verifyer().verify(password.toCharArray(), hashedPassword).verified
         }
+
+        fun convertDateToString(date: Date): String {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            return inputFormat.format(date)
+        }
+
 
     }
 

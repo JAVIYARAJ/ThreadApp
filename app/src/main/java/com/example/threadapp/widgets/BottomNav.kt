@@ -49,7 +49,7 @@ fun BottomNavbar(navController: NavHostController) {
                 SearchScreen()
             }
             composable(Routes.AddThread.route) {
-                AddThreadScreen(navController)
+                AddThreadScreen(controller)
             }
             composable(Routes.Notification.route) {
                 NotificationScreen()
