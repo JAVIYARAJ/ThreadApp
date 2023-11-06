@@ -1,26 +1,17 @@
 package com.example.threadapp.viewmodels
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.threadapp.model.ThreadPostModel
 import com.example.threadapp.model.UserModel
 import com.example.threadapp.util.Constant
 import com.example.threadapp.util.Util
-import com.example.threadapp.validation.Validation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.UUID
 
@@ -39,9 +30,6 @@ class AuthViewModel : ViewModel() {
 
     private val _profileData = MutableLiveData<UserModel>()
     val profileData: LiveData<UserModel> = _profileData
-
-    private val _posts = MutableLiveData<ArrayList<ThreadPostModel>>()
-    val posts: LiveData<ArrayList<ThreadPostModel>> = _posts
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage

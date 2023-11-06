@@ -45,7 +45,9 @@ import com.example.threadapp.viewmodels.AuthViewModel
 fun LoginScreen(navHostController: NavHostController) {
 
     var email by remember { mutableStateOf(TextFieldValue("")) }
+
     var password by remember { mutableStateOf(TextFieldValue("")) }
+
     val focusRequester = remember { FocusRequester() }
 
     val authViewModel = AuthViewModel()

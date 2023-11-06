@@ -1,5 +1,6 @@
 package com.example.threadapp.viewmodels
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,13 +10,14 @@ import com.example.threadapp.model.ResultModel
 import com.example.threadapp.model.ThreadPostModel
 import com.example.threadapp.model.UserModel
 import com.example.threadapp.util.Util
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import java.util.Date
 import java.util.UUID
 
-class AddThreadViewModel : ViewModel() {
+class AddThreadViewModel(val isFromSearch: Boolean = false) : ViewModel() {
 
     private val firebaseStorage = Firebase.storage.reference
 
@@ -27,37 +29,56 @@ class AddThreadViewModel : ViewModel() {
     private val _showLoader = MutableLiveData<Boolean>()
     val showLoader: LiveData<Boolean> = _showLoader
 
-    private val _postData = MutableLiveData<List<Pair<UserModel, ThreadPostModel>>>()
-    val postData: LiveData<List<Pair<UserModel, ThreadPostModel>>> = _postData
+    private val _postDataV2 = MutableLiveData<List<Pair<UserModel, ThreadPostModel>>>()
+    val postDataV2: LiveData<List<Pair<UserModel, ThreadPostModel>>> = _postDataV2
+
+    private val _userList = MutableLiveData<List<UserModel>>()
+    val userList: LiveData<List<UserModel>> = _userList
 
     init {
-        fetchThread {
-            _postData.postValue(it)
+        if (isFromSearch) {
+            getUserList(FirebaseAuth.getInstance().currentUser!!.uid) {
+                _userList.postValue(it)
+            }
+        } else {
+            fetchThread {
+                _postDataV2.postValue(it)
+            }
         }
     }
 
-    fun createPost(uid: String, description: String, images: Uri) {
+    @SuppressLint("SuspiciousIndentation")
+    fun createPost(uid: String, description: String, images: List<Uri>) {
         _showLoader.postValue(true)
-        val postId = UUID.randomUUID()
-        val storageRef = firebaseStorage.child("post/${postId}.jpg")
 
-        storageRef.putFile(images).addOnCompleteListener {
-            storageRef.downloadUrl.addOnSuccessListener {
-                savePostIntoDatabase(uid, postId.toString(), description, it.toString())
-            }.addOnFailureListener {
-                _result.postValue(ResultModel("failed", "something went wrong"))
+        val imageUrlList = mutableListOf<String>()
+
+        images.forEach {
+            val postId = UUID.randomUUID()
+            val storageRef = firebaseStorage.child("post/${postId}.jpg")
+            storageRef.putFile(it).addOnCompleteListener {
+                storageRef.downloadUrl.addOnSuccessListener { url ->
+                    imageUrlList.add(0, url.toString())
+                    if (images.size == imageUrlList.size) {
+                        savePostIntoDatabase(uid, postId.toString(), description, imageUrlList)
+                    }
+                }.addOnFailureListener {
+                    _result.postValue(ResultModel("failed", "something went wrong"))
+                }
             }
         }
+
     }
 
     private fun savePostIntoDatabase(
         uid: String,
         potsId: String,
         description: String,
-        urlList: String
+        urlList: List<String>
     ) {
         val ref = firebaseFireStore.collection("post")
-        val postModel = ThreadPostModel(uid, description, urlList, Util.convertDateToString(Date()))
+        val postModel =
+            ThreadPostModel(uid, description, urlList, Util.convertDateToString(Date()))
         ref.document(potsId).set(postModel).addOnSuccessListener {
             _showLoader.postValue(false)
             _result.postValue(ResultModel("success", "post successfully"))
@@ -75,12 +96,9 @@ class AddThreadViewModel : ViewModel() {
         ref.get().addOnSuccessListener { querySnapshot ->
 
             for (threads in querySnapshot) {
-                val threadPostModel = ThreadPostModel(
-                    threads.get("uid").toString(),
-                    threads.get("description").toString(),
-                    threads.get("image").toString(),
-                    threads.get("createdAt").toString(),
-                )
+                val threadPostModel =
+                    ThreadPostModel.fromSnapShot(threads);
+
                 fetchUser(threadPostModel) {
                     list.add(0, it to threadPostModel)
                     //condition is used because firebase take some time to  return data when you are get multiple data at same time
@@ -93,11 +111,32 @@ class AddThreadViewModel : ViewModel() {
         }
     }
 
+
     private fun fetchUser(thread: ThreadPostModel, onResult: (UserModel) -> Unit) {
         firebaseFireStore.collection("users").document(thread.uid).get().addOnSuccessListener {
             val user = it.toObject(UserModel::class.java)
             user?.let(onResult)
         }.addOnFailureListener {
+            _result.postValue(ResultModel("failed", "something went wrong"))
+        }
+    }
+
+    private fun getUserList(uid: String, onResult: (List<UserModel>) -> Unit) {
+        _showLoader.postValue(true)
+        firebaseFireStore.collection("users").get().addOnSuccessListener { querySnapshot ->
+            val userList = mutableListOf<UserModel>()
+
+            for (user in querySnapshot) {
+                val data = user.toObject(UserModel::class.java)
+                if (data.uid != uid) { //remove it self from user list
+                    userList.add(data);
+                }
+            }
+
+            userList.let(onResult)
+            _result.postValue(ResultModel("success", "user list get successfully"))
+        }.addOnFailureListener {
+            _showLoader.postValue(false)
             _result.postValue(ResultModel("failed", "something went wrong"))
         }
     }

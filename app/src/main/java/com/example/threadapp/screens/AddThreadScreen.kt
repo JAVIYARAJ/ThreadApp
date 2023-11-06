@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,9 +60,7 @@ fun BottomSheetDesign(controller: NavHostController) {
 
     var description by remember { mutableStateOf("") }
 
-    var image by remember {
-        mutableStateOf<Uri?>(null)
-    }
+    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     val context = LocalContext.current
 
@@ -75,7 +77,6 @@ fun BottomSheetDesign(controller: NavHostController) {
     LaunchedEffect(result) {
         if (result?.status == "success") {
             Util.showToast(context, result!!.message)
-            image = null
             description = ""
             controller.navigate(Routes.Home.route) {
                 popUpTo(Routes.AddThread.route) {
@@ -85,8 +86,8 @@ fun BottomSheetDesign(controller: NavHostController) {
         }
     }
 
-    LaunchedEffect(profileData){
-        Log.e("TAG", "BottomSheetDesign: ${profileData}", )
+    LaunchedEffect(profileData) {
+        Log.e("TAG", "BottomSheetDesign: ${profileData}")
     }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -104,10 +105,10 @@ fun BottomSheetDesign(controller: NavHostController) {
             .then(Modifier.padding(start = 10.dp, end = 10.dp, top = 20.dp))
             .clip(RoundedCornerShape(20.dp))
 
-        val imageLauncher =
-            rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(),
+        val imagesLauncher =
+            rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents(),
                 onResult = {
-                    image = it
+                    images = it
                 })
 
         Row(horizontalArrangement = Arrangement.SpaceBetween,
@@ -132,12 +133,10 @@ fun BottomSheetDesign(controller: NavHostController) {
             Text(
                 modifier = Modifier.clickable {
                     if (currentUser != null) {
-                        image?.let {
-                            addThreadViewModel.createPost(
-                                currentUser!!.uid,
+                        if(images.isNotEmpty()){
+                            addThreadViewModel.createPost( currentUser!!.uid,
                                 description,
-                                it
-                            )
+                                images)
                         }
                     }
                 }, text = "Post", style = TextStyle(
@@ -151,7 +150,7 @@ fun BottomSheetDesign(controller: NavHostController) {
             top.linkTo(firstRow.bottom)
         })
 
-        if(profileData!=null){
+        if (profileData != null) {
             Image(painter = rememberAsyncImagePainter(model = profileData!!.imageUrl),
                 contentDescription = "user_image",
                 modifier = Modifier
@@ -164,7 +163,7 @@ fun BottomSheetDesign(controller: NavHostController) {
                         top.linkTo(divider.bottom)
                     }
             )
-        }else{
+        } else {
             Image(painter = painterResource(id = R.drawable.ic_people_icon),
                 contentDescription = "user_image",
                 modifier = Modifier
@@ -178,8 +177,8 @@ fun BottomSheetDesign(controller: NavHostController) {
                     }
             )
         }
-        
-       
+
+
 
         Text(text = profileData?.username ?: "", style = TextStyle(
             fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium
@@ -212,7 +211,7 @@ fun BottomSheetDesign(controller: NavHostController) {
                 .then(Modifier.padding(top = 15.dp))
                 .clip(CircleShape)
                 .clickable {
-                    imageLauncher.launch("image/*")
+                    imagesLauncher.launch("image/*")
                 })
 
         Image(painter = painterResource(id = R.drawable.ic_camera_icon),
@@ -228,7 +227,7 @@ fun BottomSheetDesign(controller: NavHostController) {
                 .then(Modifier.padding(top = 15.dp))
                 .clip(CircleShape)
                 .clickable {
-                    imageLauncher.launch("image/*")
+                    imagesLauncher.launch("image/*")
                 })
 
         BasicTextField(maxLines = 5,
@@ -244,14 +243,68 @@ fun BottomSheetDesign(controller: NavHostController) {
                     top.linkTo(username.bottom)
                 }
                 .then(Modifier.padding(top = 10.dp, start = 40.dp)))
-        if (image != null) {
-            Image(
-                painter = rememberAsyncImagePainter(model = image),
-                contentDescription = "",
-                modifier = imageModifier,
-                contentScale = ContentScale.Fit
-            )
 
+        if (images.isNotEmpty()) {
+            if (images.size == 1) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = images[0]),
+                    contentDescription = "",
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                LazyRow(modifier = Modifier
+                    .constrainAs(postImage) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(descriptionBox.bottom)
+                    }
+                    .fillMaxWidth()) {
+                    items(images) {
+                        ConstraintLayout {
+                            val (imageCard, crossIcon) = createRefs();
+                            Card(
+                                modifier = Modifier.then(
+                                    Modifier
+                                        .padding(vertical = 10.dp, horizontal = 5.dp)
+                                        .constrainAs(imageCard) {
+                                            start.linkTo(parent.start)
+                                            end.linkTo(parent.end)
+                                        })
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(model = it),
+                                    contentDescription = "",
+                                    contentScale = ContentScale.FillWidth, modifier = Modifier
+                                        .height(200.dp)
+                                        .width(200.dp)
+
+                                )
+                            }
+
+                            IconButton(onClick = {
+                                //(images as ArrayList<Uri>).removeIf { image==it }
+                            }) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_close_icon),
+                                    contentDescription = "close_icon",
+                                    modifier = Modifier
+                                        .height(20.dp)
+                                        .width(20.dp)
+                                        .constrainAs(crossIcon) {
+                                            start.linkTo(imageCard.end)
+                                            top.linkTo(imageCard.top)
+
+                                        })
+                            }
+
+                        }
+
+
+                    }
+                }
+
+            }
         }
 
         if (description.isEmpty()) {

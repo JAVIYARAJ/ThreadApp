@@ -1,5 +1,7 @@
 package com.example.threadapp.widgets
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -30,7 +32,7 @@ import com.example.threadapp.screens.NotificationScreen
 import com.example.threadapp.screens.ProfileScreen
 import com.example.threadapp.screens.SearchScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomNavbar(navController: NavHostController) {
     val controller = rememberNavController() //local scope controller for bottom icon routing
@@ -43,10 +45,10 @@ fun BottomNavbar(navController: NavHostController) {
         ) {
 
             composable(Routes.Home.route) {
-                HomeScreen()
+                HomeScreen(bottomController = controller, mainController = navController)
             }
             composable(Routes.SearchThread.route) {
-                SearchScreen()
+                SearchScreen(navController)
             }
             composable(Routes.AddThread.route) {
                 AddThreadScreen(controller)

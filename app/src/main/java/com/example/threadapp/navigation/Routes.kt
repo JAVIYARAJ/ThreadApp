@@ -1,15 +1,17 @@
 package com.example.threadapp.navigation
 
-sealed class Routes(val route:String){
+sealed class Routes(val route: String) {
 
-    object Home:Routes("home")
-    object AddThread:Routes("add_thread")
-    object SearchThread:Routes("search")
-    object Profile:Routes("profile")
-    object Notification:Routes("notification")
-    object Splash:Routes("splash")
-    object BottomNav:Routes("bottom_nav")
-    object Login:Routes("login")
-    object Register:Routes("register")
+    object Home : Routes("home")
+    object AddThread : Routes("add_thread")
+    object SearchThread : Routes("search")
+    object Profile : Routes("profile")
+    object Notification : Routes("notification")
+    object Splash : Routes("splash")
+    object BottomNav : Routes("bottom_nav")
+
+    object Login : Routes("login")
+    object Register : Routes("register")
+    object UserProfile : Routes("other_user/{data}")
 
 }

@@ -17,7 +17,6 @@ class Constant {
 
         //firebase root nodes
         const val FIREBASE_STORAGE_ROOT = "users"
-        const val FIREBASE_DATABASE_ROOT = "users"
 
     }
 }

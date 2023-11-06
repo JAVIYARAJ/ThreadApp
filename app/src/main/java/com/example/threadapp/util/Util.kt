@@ -1,15 +1,20 @@
 package com.example.threadapp.util
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.threadapp.navigation.Routes
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import javax.inject.Singleton
 
 class Util {
@@ -43,6 +48,22 @@ class Util {
             return inputFormat.format(date)
         }
 
+        fun getDay(date: String){
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+//            val inputResult=inputFormat.format(Date.parse(date))
+//            val outputFormat=SimpleDateFormat("dd", Locale.getDefault())
+//            return outputFormat.format(inputResult)
+            Log.e("TAG", "getDay: ${Date.parse(date)}", )
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun formatDateString(inputDate: String): String {
+            val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            val outputFormatter = DateTimeFormatter.ofPattern("dd MMMM", Locale.ENGLISH)
+
+            val dateTime = LocalDateTime.parse(inputDate, inputFormatter)
+            return dateTime.format(outputFormatter)
+        }
 
     }
 
