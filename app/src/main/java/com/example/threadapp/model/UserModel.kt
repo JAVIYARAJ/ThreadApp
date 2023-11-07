@@ -8,5 +8,6 @@ data class UserModel(
     val password: String = "",
     val bio: String = "",
     val imageUrl: String = "",
-    val createdAt: String = ""
+    val createdAt: String = "",
+    val isPrivate: Boolean = true
 )

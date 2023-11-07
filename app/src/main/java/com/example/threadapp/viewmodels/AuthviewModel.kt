@@ -117,7 +117,8 @@ class AuthViewModel : ViewModel() {
             password = password,
             bio = bio,
             imageUrl = imageUrl,
-            createdAt = Util.convertDateToString(Date())
+            createdAt = Util.convertDateToString(Date()),
+            isPrivate = true
         )
 
         val ref = firebaseFireStore.collection("users")

@@ -2,6 +2,8 @@ package com.example.threadapp.util
 
 import android.Manifest
 import android.os.Build
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.composable
 import com.example.threadapp.navigation.Routes
 import com.example.threadapp.screens.HomeScreen
@@ -17,6 +19,8 @@ class Constant {
 
         //firebase root nodes
         const val FIREBASE_STORAGE_ROOT = "users"
+
+        val widthModifier = Modifier.fillMaxWidth()
 
     }
 }
