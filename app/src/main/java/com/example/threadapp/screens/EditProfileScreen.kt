@@ -1,6 +1,7 @@
 package com.example.threadapp.screens
 
 import android.nfc.cardemulation.CardEmulation
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,6 +47,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.threadapp.R
 import com.example.threadapp.navigation.Routes
+import com.example.threadapp.util.PreferenceHelper
 
 @Composable
 fun EditProfileScreen(navHostController: NavHostController) {
@@ -59,11 +61,21 @@ fun EditProfileScreen(navHostController: NavHostController) {
     var isPrivate by remember { mutableStateOf(true) }
     val isEditPerform by remember { mutableStateOf(false) }
 
-    val context= LocalContext.current;
+    val context = LocalContext.current;
 
     val defaultStartMargin = 10.dp
     val defaultTopMargin = 10.dp
 
+
+    val bioData by remember {
+        mutableStateOf(PreferenceHelper.getBioOrLink(context, "bio"))
+    }
+
+    val linkData by remember {
+        mutableStateOf(PreferenceHelper.getBioOrLink(context, "link"))
+    }
+
+    PreferenceHelper.clearBioOrLink(context)
 
     ConstraintLayout(modifier = Modifier.then(Modifier.padding(horizontal = 10.dp))) {
         val (topBar, card) = createRefs()
@@ -74,8 +86,8 @@ fun EditProfileScreen(navHostController: NavHostController) {
             modifier = Modifier
                 .constrainAs(topBar) {
                     top.linkTo(parent.top, defaultTopMargin)
-                    start.linkTo(parent.start,)
-                    end.linkTo(parent.end,)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 }
                 .fillMaxWidth()
         ) {
@@ -83,8 +95,10 @@ fun EditProfileScreen(navHostController: NavHostController) {
                 TextButton(onClick = {
                     navHostController.popBackStack()
                 }, modifier = Modifier) {
-                    Image(painter = painterResource(id = R.drawable.ic_close_icon),
-                        contentDescription = "close_icon",)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_close_icon),
+                        contentDescription = "close_icon",
+                    )
                 }
                 Text(
                     text = "Edit profile",
@@ -94,7 +108,10 @@ fun EditProfileScreen(navHostController: NavHostController) {
             }
 
             TextButton(onClick = {}, modifier = Modifier.weight(0.2f)) {
-                Text(text = "Done", style = if(isEditPerform) labelStyle else labelStyle.copy(color = Color.Gray))
+                Text(
+                    text = "Done",
+                    style = if (isEditPerform) labelStyle else labelStyle.copy(color = Color.Gray)
+                )
             }
         }
 
@@ -192,15 +209,23 @@ fun EditProfileScreen(navHostController: NavHostController) {
                 })
 
                 Text(
-                    text = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
+                    text = if (bioData != null) bioData!! else "",
                     style = labelStyle,
-                    modifier = Modifier.constrainAs(bio) {
-                        start.linkTo(parent.start, margin = defaultStartMargin)
-                        top.linkTo(bioLabel.bottom, margin = defaultTopMargin)
-                    }.clickable {
-                        val route=Routes.EditBioLinkProfile.route.replace("{data}","true")
-                        navHostController.navigate(route)
-                    })
+                    modifier = Modifier
+                        .constrainAs(bio) {
+                            start.linkTo(parent.start, margin = defaultStartMargin)
+                            top.linkTo(bioLabel.bottom, margin = defaultTopMargin)
+                        }
+                        .clickable {
+                            val route = Routes.EditBioLinkProfile.route
+                                .replace("{data}", "true")
+                                .replace(
+                                    "{value}",
+                                    if (bioData != null) bioData!! else ""
+                                )
+
+                            navHostController.navigate(route)
+                        })
 
                 Divider(thickness = 0.8.dp, color = Color.Black, modifier = Modifier
                     .constrainAs(divider2) {
@@ -216,15 +241,19 @@ fun EditProfileScreen(navHostController: NavHostController) {
                 })
 
                 Text(
-                    text = "https//www.google.com",
+                    text = if (linkData != null) linkData!! else "",
                     style = labelStyle.copy(color = Color.Blue),
-                    modifier = Modifier.constrainAs(link) {
-                        start.linkTo(parent.start, margin = defaultStartMargin)
-                        top.linkTo(linkLabel.bottom, margin = defaultTopMargin)
-                    }.clickable {
-                        val route=Routes.EditBioLinkProfile.route.replace("{data}","false")
-                        navHostController.navigate(route)
-                    })
+                    modifier = Modifier
+                        .constrainAs(link) {
+                            start.linkTo(parent.start, margin = defaultStartMargin)
+                            top.linkTo(linkLabel.bottom, margin = defaultTopMargin)
+                        }
+                        .clickable {
+                            val route = Routes.EditBioLinkProfile.route
+                                .replace("{data}", "false")
+                                .replace("{value}", if (linkData != null) linkData!! else "test")
+                            navHostController.navigate(route)
+                        })
 
                 Divider(thickness = 0.8.dp, color = Color.Black, modifier = Modifier
                     .constrainAs(divider3) {

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.threadapp.R
 import com.example.threadapp.viewmodels.AuthViewModel
+import com.example.threadapp.widgets.CustomBottomThreadInfoSheet
 import com.example.threadapp.widgets.ReusableProfileScreen
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -102,7 +103,7 @@ fun UserProfileScreen(controller: NavHostController, uid: String) {
         ModalBottomSheetLayout(
             sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
             sheetContent = {
-                CustomBottomSheet(username = profileData!!.username)
+                CustomBottomThreadInfoSheet(username = profileData!!.username)
             }, sheetState = bottomSheetState
         ) {
 
@@ -112,50 +113,3 @@ fun UserProfileScreen(controller: NavHostController, uid: String) {
 
 }
 
-
-@Composable
-fun CustomBottomSheet(username: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(Modifier.padding(vertical = 20.dp, horizontal = 10.dp))
-    ) {
-        Box(modifier = Modifier
-            .height(4.dp)
-            .width(30.dp)
-            .background(color = Color.Gray).align(alignment = Alignment.CenterHorizontally).clip(
-                RoundedCornerShape(100.dp)
-            )) {
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "threads.net",
-                style = TextStyle(
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_thread_icon),
-                contentDescription = "thread_icon",
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(
-                        CircleShape
-                    ),
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Soon, you'll be able to follow and interact with people on other fediverse platforms, like Mastodon. They can also find you with full username @${username}@threads.net",
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
-        )
-    }
-}

@@ -53,7 +53,8 @@ fun NavGraph(navHostController: NavHostController) {
 
         composable(Routes.EditBioLinkProfile.route) {
             val isEdit = it.arguments?.getString("data")
-            EditProfileBioLinkScreen(navHostController, isEdit == "true")
+            val value=it.arguments?.getString("value")
+            EditProfileBioLinkScreen(navHostController, isEdit == "true", value = value!!)
         }
 
         composable(Routes.BottomNav.route) {

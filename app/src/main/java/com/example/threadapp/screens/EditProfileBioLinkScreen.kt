@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,12 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.threadapp.R
+import com.example.threadapp.util.PreferenceHelper
 
 @Composable
-fun EditProfileBioLinkScreen(navHostController: NavHostController,isBio:Boolean=false) {
+fun EditProfileBioLinkScreen(
+    navHostController: NavHostController, isBio: Boolean = false, value: String
+) {
 
-    var editText by remember { mutableStateOf("It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).") }
+    var editText by remember { mutableStateOf(if (isBio) value else value.replace("@", "/")) }
 
+    val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -47,6 +52,7 @@ fun EditProfileBioLinkScreen(navHostController: NavHostController,isBio:Boolean=
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextButton(onClick = {
+
                 navHostController.popBackStack()
             }, modifier = Modifier) {
                 Image(
@@ -55,12 +61,18 @@ fun EditProfileBioLinkScreen(navHostController: NavHostController,isBio:Boolean=
                 )
             }
             Text(
-                text = "Edit ${if(isBio) "Bio" else "Link"}",
+                text = "Edit ${if (isBio) "Bio" else "Link"}",
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium)
             )
 
             TextButton(onClick = {
+                if (isBio) {
+                    PreferenceHelper.setBioOrLinkData(context, editText, null)
+                } else {
+                    PreferenceHelper.setBioOrLinkData(context, null, editText)
+                }
+
                 navHostController.popBackStack()
             }, modifier = Modifier) {
                 Image(
@@ -77,9 +89,7 @@ fun EditProfileBioLinkScreen(navHostController: NavHostController,isBio:Boolean=
                     Modifier
                         .padding(horizontal = 10.dp)
                         .border(
-                            width = 1.dp,
-                            color = Color.Black,
-                            shape = RoundedCornerShape(10.dp)
+                            width = 1.dp, color = Color.Black, shape = RoundedCornerShape(10.dp)
                         )
                 )
         ) {
@@ -92,10 +102,8 @@ fun EditProfileBioLinkScreen(navHostController: NavHostController,isBio:Boolean=
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if(isBio) "Bio" else "Link", style = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Black
+                        text = if (isBio) "Bio" else "Link", style = TextStyle(
+                            fontSize = 15.sp, fontWeight = FontWeight.Normal, color = Color.Black
                         )
                     )
                     IconButton(onClick = {
@@ -112,7 +120,8 @@ fun EditProfileBioLinkScreen(navHostController: NavHostController,isBio:Boolean=
                     value = editText,
                     onValueChange = {
                         editText = it
-                    }, textStyle = TextStyle(fontSize = 15.sp),
+                    },
+                    textStyle = TextStyle(fontSize = 15.sp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 5.dp)

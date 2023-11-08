@@ -25,6 +25,7 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -47,7 +48,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(bottomController:NavHostController?,mainController:NavHostController?) {
+fun HomeScreen(bottomController: NavHostController?, mainController: NavHostController?) {
 
     val addThreadViewModel = AddThreadViewModel()
     val postData by addThreadViewModel.postDataV2.observeAsState()
@@ -221,10 +222,34 @@ fun HomeScreen(bottomController:NavHostController?,mainController:NavHostControl
                         Spacer(modifier = Modifier.height(5.dp))
 
                         Row(modifier = Modifier.then(Modifier.padding(start = 10.dp))) {
+                            Log.e("TAG", "HomeScreen: ${postData!![index].second.likes.size}")
                             Image(
                                 painter = painterResource(id = R.drawable.ic_heart_icon),
                                 contentDescription = "like_icon",
-                                modifier = Modifier.size(25.dp)
+                                modifier = Modifier
+                                    .size(25.dp)
+                                    .clickable {
+                                        val allLikes = mutableListOf<String>()
+
+                                        if (allLikes.size == 0) {
+                                            allLikes.add(FirebaseAuth.getInstance().currentUser?.uid!!)
+                                        } else {
+                                            allLikes.addAll(postData!![index].second.likes)
+                                            val likeIndex =
+                                                allLikes.indexOfFirst { it == FirebaseAuth.getInstance().currentUser?.uid!! }
+                                            if (likeIndex != -1) {
+                                                allLikes.removeAt(likeIndex)
+                                            } else {
+                                                allLikes.add(FirebaseAuth.getInstance().currentUser?.uid!!)
+                                            }
+                                        }
+                                        addThreadViewModel.likeThread(
+                                            FirebaseAuth.getInstance().currentUser?.uid!!,
+                                            postData!![index].second.postId,
+                                            allLikes
+                                        )
+                                        postData!![index].second.likes = allLikes.toList()
+                                    }
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Image(
@@ -246,6 +271,12 @@ fun HomeScreen(bottomController:NavHostController?,mainController:NavHostControl
                                 modifier = Modifier.size(25.dp)
                             )
                         }
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(
+                            text = "${postData!![index].second.likes.size ?: 0} Likes",
+                            style = TextStyle(fontSize = 15.sp),
+                            modifier = Modifier.then(Modifier.padding(start = 10.dp))
+                        )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
 

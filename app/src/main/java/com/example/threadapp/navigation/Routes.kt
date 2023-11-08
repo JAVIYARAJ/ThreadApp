@@ -8,7 +8,7 @@ sealed class Routes(val route: String) {
     object Profile : Routes("profile")
     object EditProfile : Routes("edit_profile")
 
-    object EditBioLinkProfile : Routes("edit_profile_bio_link/{data}")
+    object EditBioLinkProfile : Routes("edit_profile_bio_link/{data}/{value}")
 
     object Notification : Routes("notification")
     object Splash : Routes("splash")

@@ -143,4 +143,8 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun updateProfile() {
+        
+    }
+
 }

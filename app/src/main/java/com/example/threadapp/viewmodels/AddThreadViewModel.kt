@@ -2,7 +2,6 @@ package com.example.threadapp.viewmodels
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,7 +16,7 @@ import com.google.firebase.storage.ktx.storage
 import java.util.Date
 import java.util.UUID
 
-class AddThreadViewModel(val isFromSearch: Boolean = false) : ViewModel() {
+class AddThreadViewModel(val isFromSearch: Boolean = false, var uid: String? = null) : ViewModel() {
 
     private val firebaseStorage = Firebase.storage.reference
 
@@ -34,6 +33,9 @@ class AddThreadViewModel(val isFromSearch: Boolean = false) : ViewModel() {
 
     private val _userList = MutableLiveData<List<UserModel>>()
     val userList: LiveData<List<UserModel>> = _userList
+
+    private val _postChanges = MutableLiveData<Boolean>()
+    val postChanges: LiveData<Boolean> = _postChanges
 
     init {
         if (isFromSearch) {
@@ -78,7 +80,7 @@ class AddThreadViewModel(val isFromSearch: Boolean = false) : ViewModel() {
     ) {
         val ref = firebaseFireStore.collection("post")
         val postModel =
-            ThreadPostModel(uid, description, urlList, Util.convertDateToString(Date()))
+            ThreadPostModel(potsId, uid, description, urlList, Util.convertDateToString(Date()))
         ref.document(potsId).set(postModel).addOnSuccessListener {
             _showLoader.postValue(false)
             _result.postValue(ResultModel("success", "post successfully"))
@@ -103,7 +105,12 @@ class AddThreadViewModel(val isFromSearch: Boolean = false) : ViewModel() {
                     list.add(0, it to threadPostModel)
                     //condition is used because firebase take some time to  return data when you are get multiple data at same time
                     if (list.size == querySnapshot.size()) {
-                        onResultList(list)
+                        if (uid == null) {
+                            onResultList(list)
+                        } else {
+                            val filterList=list.filter { thread->thread.first.uid==uid }
+                            onResultList(filterList)
+                        }
                     }
                 }
             }
@@ -139,6 +146,18 @@ class AddThreadViewModel(val isFromSearch: Boolean = false) : ViewModel() {
             _showLoader.postValue(false)
             _result.postValue(ResultModel("failed", "something went wrong"))
         }
+    }
+
+    fun likeThread(uid: String, postId: String, likes: List<String>) {
+
+        val ref = firebaseFireStore.collection("post").document(postId).update("likes", likes)
+            .addOnSuccessListener {
+                _postChanges.postValue(true)
+                _result.postValue(ResultModel("success", "Thread liked successfully"))
+            }.addOnFailureListener {
+                _postChanges.postValue(false)
+                _result.postValue(ResultModel("failed", "something went wrong"))
+            }
     }
 
 }
