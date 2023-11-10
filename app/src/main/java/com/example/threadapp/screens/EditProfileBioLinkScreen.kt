@@ -68,9 +68,9 @@ fun EditProfileBioLinkScreen(
 
             TextButton(onClick = {
                 if (isBio) {
-                    PreferenceHelper.setBioOrLinkData(context, editText, null)
+                    PreferenceHelper.setBioOrLinkData(context, "bio", editText)
                 } else {
-                    PreferenceHelper.setBioOrLinkData(context, null, editText)
+                    PreferenceHelper.setBioOrLinkData(context, "link", editText)
                 }
 
                 navHostController.popBackStack()

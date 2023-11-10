@@ -5,14 +5,10 @@ import android.content.Context
 class PreferenceHelper() {
 
     companion object {
-        fun setBioOrLinkData(context: Context, bio: String?, link: String?) {
+        fun setBioOrLinkData(context: Context,key:String,value:String) {
             val pref = context.getSharedPreferences("thread_app", Context.MODE_PRIVATE)
             val editor = pref.edit()
-            if (bio != null) {
-                editor.putString("bio", bio)
-            } else {
-                editor.putString("link", link)
-            }
+            editor.putString(key,value)
             editor.apply()
         }
 
@@ -29,5 +25,6 @@ class PreferenceHelper() {
                 it.apply()
             }
         }
+
     }
 }

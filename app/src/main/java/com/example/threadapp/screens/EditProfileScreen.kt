@@ -221,7 +221,7 @@ fun EditProfileScreen(navHostController: NavHostController) {
                                 .replace("{data}", "true")
                                 .replace(
                                     "{value}",
-                                    if (bioData != null) bioData!! else ""
+                                    if (bioData != null) bioData!! else "test bio"
                                 )
 
                             navHostController.navigate(route)
@@ -251,7 +251,7 @@ fun EditProfileScreen(navHostController: NavHostController) {
                         .clickable {
                             val route = Routes.EditBioLinkProfile.route
                                 .replace("{data}", "false")
-                                .replace("{value}", if (linkData != null) linkData!! else "test")
+                                .replace("{value}", if (linkData != null) linkData!! else "test link")
                             navHostController.navigate(route)
                         })
 
