@@ -46,5 +46,18 @@ Threads is an online social media and social networking service operated by Meta
 
 ## Screenshots
 
-![App Screenshot](<img src="screenshots/screenshots.png"/>)
+![App Screenshot](<img src="screenshots/image1.png"/>)
+![App Screenshot](<img src="screenshots/image2.png"/>)
+![App Screenshot](<img src="screenshots/image3.png"/>)
+![App Screenshot](<img src="screenshots/image4.png"/>)
+![App Screenshot](<img src="screenshots/image5.png"/>)
+![App Screenshot](<img src="screenshots/image6.png"/>)
+![App Screenshot](<img src="screenshots/image7.png"/>)
+![App Screenshot](<img src="screenshots/image8.png"/>)
+![App Screenshot](<img src="screenshots/image9.png"/>)
+![App Screenshot](<img src="screenshots/image10.png"/>)
+![App Screenshot](<img src="screenshots/image11.png"/>)
+![App Screenshot](<img src="screenshots/image12.png"/>)
+![App Screenshot](<img src="screenshots/image13.png"/>)
+
 
