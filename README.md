@@ -48,16 +48,12 @@ Threads is an online social media and social networking service operated by Meta
 
 <img src="screenshots/image1.png" width="300"/>  <img src="screenshots/image2.png" width="300"/> <img src="screenshots/image3.png" width="300"/>
 
+<img src="screenshots/image4.png" width="300"/> <img src="screenshots/image5.png" width="300"/> <img src="screenshots/image6.png" width="300"/>
 
-<img src="screenshots/image4.png" width="320"/>
-<img src="screenshots/image5.png" width="320"/>
-<img src="screenshots/image6.png" width="320"/>
-<img src="screenshots/image7.png" width="320"/>
-<img src="screenshots/image8.png" width="320" />
-<img src="screenshots/image9.png" width="320"/>
-<img src="screenshots/image10.png" width="320"/>
-<img src="screenshots/image11.png" width="320"/>
-<img src="screenshots/image12.png" width="320"/>
+<img src="screenshots/image7.png" width="300"/> <img src="screenshots/image8.png" width="300" /> <img src="screenshots/image9.png" width="300"/>
+
+<img src="screenshots/image10.png" width="300"/> <img src="screenshots/image11.png" width="300"/> <img src="screenshots/image12.png" width="320"/>
+
 <img src="screenshots/image13.png" width="320"/>
 
 
