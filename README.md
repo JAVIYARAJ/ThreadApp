@@ -46,7 +46,7 @@ Threads is an online social media and social networking service operated by Meta
 
 ## Screenshots
 
-<img src="screenshots/image1.png" width="320"/> $nbsp$nbsp$nbsp$nbsp$nbsp <img src="screenshots/image2.png" width="320"/>
+<img src="screenshots/image1.png" width="320"/> $nbsp;$nbsp;$nbsp; <img src="screenshots/image2.png" width="320"/>
 
 <img src="screenshots/image3.png" width="320"/>
 <img src="screenshots/image4.png" width="320"/>
