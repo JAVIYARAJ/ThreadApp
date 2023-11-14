@@ -29,7 +29,7 @@ Threads is an online social media and social networking service operated by Meta
 - thread post listing
 - dynamic profile routing
 - profile
-- search usser
+- search user
 
 
 
